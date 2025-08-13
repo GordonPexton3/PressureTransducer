@@ -78,12 +78,8 @@ class ConnectionWidgit(QWidget):
         return self.arduino_serial.readline().decode('utf-8').strip()
     
     def read_pressure(self) -> str:
-        # string_list = self.read_line().split()
-        #         return string_list[1])
-        # Sometimes the string list is empty, happens rarely, so this catched the error. 
-        # return self.silly_silly_haha_list[random.randint(0,len(self.silly_silly_haha_list)-1)]
-        pressure = self.read_line().split()[1]
-        while( pressure == ""):
-            pressure = self.read_line().split()[1]
-        return pressure
-
+        while(True):
+            try:
+                return self.read_line().split()[1]
+            except:
+                ...
