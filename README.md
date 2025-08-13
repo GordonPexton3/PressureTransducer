@@ -12,3 +12,5 @@ This application works together with a pressure tranducer, an arduino, and an AD
 ## Install Python Dependancies 
 pip install -r requirements.txt
 
+## Documentation about Pressure Logger 
+https://docs.google.com/document/d/1a2oQZPxKVQ7r7ThZ8v3OWbBjivFxugTFVL-I4Tenh9E/edit?usp=sharing
