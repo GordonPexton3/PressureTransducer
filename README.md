@@ -1,4 +1,4 @@
-Battery Pressure Logger
+# Battery Pressure Logger
 A Python and Arduino-based system to automatically record pressure readings from pressurized battery cells.
 
 This application works together with a pressure tranducer, an arduino, and an ADC breakout board to record pressure readings from a pressurized battery. 
