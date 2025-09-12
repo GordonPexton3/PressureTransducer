@@ -1,13 +1,13 @@
 #include <Adafruit_ADS1X15.h>
 
 #define KEY_STRING "ARDU "
-#define PRESSURE1 86.2
-#define VAL1 17178
-#define PRESSURE2 96.1
-#define VAL2 18812.72222
+#define PRESSURE2 95
+#define VAL2 17895
+#define PRESSURE1 72
+#define VAL1 14420
 
-float slope = (PRESSURE2 - PRESSURE1) / (VAL2 - VAL1);
-float intercept = (PRESSURE1 - (slope * VAL1));
+float slope = (float)(PRESSURE2 - PRESSURE1) / (VAL2 - VAL1);
+float intercept = (float)(PRESSURE1 - (slope * VAL1));
 String response;
 
 Adafruit_ADS1115 ads;  /* Use this for the 16-bit version */
@@ -33,8 +33,8 @@ void setup(void)
     Serial.println("Failed to initialize ADS.");
     while (1);
   }
-  Serial.println(slope);
-  Serial.println(intercept);
+  // Serial.println(slope);
+  // Serial.println(intercept);
 }
 
 void loop(void)

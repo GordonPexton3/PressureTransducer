@@ -2,7 +2,6 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QTabWidget,QVBoxLayout
 from PyQt5.QtCore import pyqtSlot
 from Tabs import Tabs
-from ThreadTab import ThreadTab
 from time import time
 
 width = 500

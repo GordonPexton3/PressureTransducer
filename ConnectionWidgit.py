@@ -1,12 +1,17 @@
-from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QLineEdit
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QLineEdit, QPushButton
 import serial
 import time
-import random
+
+'''
+This widgit in the GUI is responsible for interacting with the user to 
+establish connection with the Arduino. 
+It also hosts a read only bo which communicates a lot of information to the 
+user. 
+It also manages the continual connection with the Arduino and 
+provides the functions necesary to read from it. 
+'''
 
 class ConnectionWidgit(QWidget):
-
-    silly_silly_haha_list = ["nope", "no pressure for you", "sorry did you need a pressure reading?", "meh", "oops", "battery boy", "are you confused", "Your lucy I didn't break"]
 
     def __init__(self, input, go, message = "Status Box"):
         super().__init__()
@@ -69,17 +74,25 @@ class ConnectionWidgit(QWidget):
         self.input_widget.setEnabled(True)
         self.go_widget.go_button.setEnabled(True)
     
-    def disable_app(self):
-        self.go_widget.go_button.setEnabled(False)
-        self.input_widget.setEnabled(False)
+    ############################################
+    ### METHODS EXCLUSIVELY FOR RECORDER.RUN ###
+    ############################################
 
-    def read_line(self) -> str:
+    '''
+    No race conditions should exist when calling this function from the logging thread 
+    because this function is exclusively used by the logging thread
+    '''
+    def read_line(self) -> str: 
+        # Errors here will be caught up in Recorder.run
         self.arduino_serial.read_all()
         return self.arduino_serial.readline().decode('utf-8').strip()
     
+    '''
+    No race conditions should exist when calling this function from the logging thread 
+    because this function is exclusively used by the logging thread
+    '''
     def read_pressure(self) -> str:
-        while(True):
-            try:
-                return self.read_line().split()[1]
-            except:
-                ...
+        # Errors here will be caught up in Recorder.run
+        return self.read_line().split()[1]
+            
+            
