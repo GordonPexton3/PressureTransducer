@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot
 from ConnectionWidgit import ConnectionWidgit
 from InputWidget import InputWidget
 from GoWidgit import GoWidgit
-from DisplayPressureWidgit import DisplayPressureWidgit
+from DisplayPressureWidget import DisplayPressureWidget
 
 '''
 This class initiates each tab in the GUI while also creating a unique instance of all the widgets 
@@ -24,14 +24,15 @@ class ThreadTab(QWidget):
         These are the funamental widgets that get added to each tab and through which all
         the programs functionality is run
         '''
-        self.go_widget = GoWidgit()
-        # Go widget is special so I don't want him to be seen like all the rest
         self.input_widget = InputWidget()
+        self.display_pressure_widget = DisplayPressureWidget()
+        # Getting Go-widget the dispay_pressure_widget at startup so that the thread 
+        # can be linked immediatly. 
+        self.go_widget = GoWidgit(self.display_pressure_widget)
         # Connection widget needs go widget in order to keep it disabled until all 
         # the parameters are right to start running it. 
-        self.connection_widget = ConnectionWidgit(self.input_widget, self.go_widget)
-        self.display_pressure_widgit = DisplayPressureWidgit()
-
+        self.connection_widget = ConnectionWidgit(self.go_widget)
+        
         '''
         Go wiget is the class and widget in which the program loggin thread is started
         and as such it needs the instance of the other widgets to interact with them
@@ -39,7 +40,6 @@ class ThreadTab(QWidget):
         '''
         self.go_widget.input_widget = self.input_widget
         self.go_widget.connection_widget = self.connection_widget
-        self.go_widget.display_pressure_widgit = self.display_pressure_widgit
 
         '''
         This is the organization of each tab of the GUI. 
@@ -50,7 +50,7 @@ class ThreadTab(QWidget):
         self.layout.addWidget(self.connection_widget)
         self.layout.addWidget(self.input_widget)
         self.layout.addWidget(self.go_widget)
-        self.layout.addWidget(self.display_pressure_widgit)
+        self.layout.addWidget(self.display_pressure_widget)
         
         self.setLayout(self.layout)
 

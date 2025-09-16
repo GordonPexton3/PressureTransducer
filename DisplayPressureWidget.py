@@ -1,9 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QWidget, QTextEdit, QVBoxLayout
 from PyQt5.QtCore import pyqtSlot
-import serial
-import time
 
-class DisplayPressureWidgit(QWidget):
+
+class DisplayPressureWidget(QWidget):
 
     '''
     the display pressure widget will display the pressure for the last n readings in a box below the

@@ -20,3 +20,9 @@ class InputWidget(QWidget):
         self.layout.addWidget(self.file_name_input_box,2,1)
         
         self.setLayout(self.layout)
+
+        self.setEnabled(False)
+
+    
+
+

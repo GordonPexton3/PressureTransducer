@@ -13,12 +13,10 @@ provides the functions necesary to read from it.
 
 class ConnectionWidgit(QWidget):
 
-    def __init__(self, input, go, message = "Status Box"):
+    def __init__(self, go, message = "Status Box"):
         super().__init__()
 
-        self.input_widget = input
         self.go_widget = go
-        self.disable_app()
 
         self.status_message = message
         
@@ -37,20 +35,22 @@ class ConnectionWidgit(QWidget):
 
         self.setLayout(self.layout)
 
-    def COM_connect_action(self):
+    # The return value lets the caller know if it was sucessful. 
+    def COM_connect_action(self) -> False:
         try:
             COM_num: int = self.get_COM_input()
             self.arduino_serial = self.get_serial_connection(COM_num)
             self.varify_is_correct_hardware()
             self.status_box.setText("Serial Connection Success")
-            self.enable_app()
+            self.go_widget.enable_go_button_and_input_only(True)
+            return True
         except Exception as a:
             self.status_box.setText(f"Serial Connection to Arduino Failed: {a}")
-            self.disable_app()
             try:
                 self.arduino_serial.close()
             except:
                 ...
+            return False
     
     def get_COM_input(self):
         try:
@@ -60,7 +60,7 @@ class ConnectionWidgit(QWidget):
     
     def get_serial_connection(self, COM_num):
         try:
-            return serial.Serial(f"COM{COM_num}", 9600, timeout=1.5)
+            return serial.Serial(f"COM{COM_num}", 9600, timeout=1)
         except:
             raise Exception("Connection not available")
     
@@ -70,13 +70,11 @@ class ConnectionWidgit(QWidget):
         if line_list == [] or line_list[0] != "ARDU":
             raise Exception("Not a pressure sensor")
         
-    def enable_app(self):
-        self.input_widget.setEnabled(True)
-        self.go_widget.go_button.setEnabled(True)
-    
+
     ############################################
     ### METHODS EXCLUSIVELY FOR RECORDER.RUN ###
     ############################################
+
 
     '''
     No race conditions should exist when calling this function from the logging thread 
@@ -92,7 +90,15 @@ class ConnectionWidgit(QWidget):
     because this function is exclusively used by the logging thread
     '''
     def read_pressure(self) -> str:
-        # Errors here will be caught up in Recorder.run
-        return self.read_line().split()[1]
+        # if there are little blips I want to try and catch them here so that the only important 
+        # errors will require human intervention. 
+        for i in range(3):
+            error_message: str = None
+            try:
+                return self.read_line().split()[1]
+            except Exception as a: 
+                error_message = a
+                print("sucesfully determind there is something wrong" + str(a))
+        raise Exception("Reading pressure sensor isn't working\n" + str(error_message))
             
             

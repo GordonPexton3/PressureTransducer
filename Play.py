@@ -1,48 +1,68 @@
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot, QCoreApplication
 import sys
-import time
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLabel
+
 
 class Worker(QObject):
-    # Signal to send data back to main
-    dataReady = pyqtSignal(str)
+    bool_changed = pyqtSignal(bool)  # Worker → Main
+
+    def __init__(self):
+        super().__init__()
+        self._flag = False
+
+    @pyqtSlot(bool)
+    def set_flag(self, value):
+        """Slot to safely update the worker's boolean"""
+        self._flag = value
+        print(f"[Worker] Flag updated to: {self._flag}")
+        self.bool_changed.emit(self._flag)  # report back to main thread
+
+
+class MainWindow(QWidget):
+    update_worker_flag = pyqtSignal(bool)  # Main → Worker
 
     def __init__(self):
         super().__init__()
 
-    @pyqtSlot(str)
-    def receive_data(self, value):
-        print(f"[Thread] Received from main: {value}")
-        # Do something with value...
-        time.sleep(2)
-        self.dataReady.emit(f"Processed: {value}")
+        # UI
+        self.label = QLabel("Flag: False", self)
+        self.button = QPushButton("Toggle Worker Flag", self)
 
-class MainController(QObject):
-    sendToWorker = pyqtSignal(str)
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.button)
+        self.setLayout(layout)
 
-    def __init__(self):
-        super().__init__()
+        # Thread setup
         self.thread = QThread()
         self.worker = Worker()
-
         self.worker.moveToThread(self.thread)
 
-        # Connect signal to slot
-        self.sendToWorker.connect(self.worker.receive_data)
-        self.worker.dataReady.connect(self.handle_result)
+        # Connect signals
+        self.button.clicked.connect(self.toggle_flag)                 # Button → Main
+        self.update_worker_flag.c(self.worker.set_flag)         # Main → Worker
+        self.worker.bool_changed.connect(self.update_label)           # Worker → Main
 
+        # Start thread
         self.thread.start()
 
-    def handle_result(self, result):
-        print(f"[Main] Got result from thread: {result}")
+        self.current_flag = False
 
-    def send_data_to_worker(self, value):
-        print(f"[Main] Sending to thread: {value}")
-        self.sendToWorker.emit(value)
+    def toggle_flag(self):
+        """Called in main thread when button is clicked"""
+        self.current_flag = not self.current_flag
+        print(f"[Main] Sending flag={self.current_flag} to worker")
+        self.update_worker_flag.emit(self.current_flag)  # emit to worker
+
+    @pyqtSlot(bool)
+    def update_label(self, value):
+        """Update UI when worker confirms change"""
+        self.label.setText(f"Flag: {value}")
+        print(f"[Main] UI updated with {value}")
+
 
 if __name__ == "__main__":
-    app = QCoreApplication(sys.argv)
-
-    mc = MainController()
-    mc.send_data_to_worker("BREH")
-
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
     sys.exit(app.exec_())
