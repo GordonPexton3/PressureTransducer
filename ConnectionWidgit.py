@@ -98,7 +98,6 @@ class ConnectionWidgit(QWidget):
                 return self.read_line().split()[1]
             except Exception as a: 
                 error_message = a
-                print("sucesfully determind there is something wrong" + str(a))
-        raise Exception("Reading pressure sensor isn't working\n" + str(error_message))
+        raise Exception("Reading pressure sensor failed\n" + str(error_message))
             
             

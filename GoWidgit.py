@@ -228,14 +228,7 @@ class GoWidgit(QWidget):
         # print to the screen the status. 
         self.connection_widget.status_box.setText(f"Progress in samples ({info_lst[0]}/{self.thread_recorder.total_num_samples})\n ERROR {str(info_lst[1])}\n")
         self.enable_cancel_and_reconnect_buttons_only(True)
-        # print("Total num samples" + str(self.thread_recorder.total_num_samples))
-        # print(f"num samples taken {info_lst[0]}")
-        # print(f"The subtraction of the two {self.thread_recorder.total_num_samples - info_lst[0]}")
-        # print("Setting one to the other and dispaly")
         self.thread_recorder.total_num_samples = self.thread_recorder.total_num_samples - info_lst[0]
-        print("error detected in main thread")
-        print(self.thread_recorder.total_num_samples)
-        
 
     ### METHODS USED BY THE THREAD !!! RACE CONDITION POSSIBLE ###
     
@@ -294,7 +287,6 @@ class Recorder(QThread):
     def run(self):
         next_time = time.perf_counter() + self.interval_sec
         for sample_num in range(self.total_num_samples):
-            print(f"Number of samples {sample_num}")
             # Breaking loop
             if self.break_loop:
                 self.break_loop = False
@@ -306,7 +298,6 @@ class Recorder(QThread):
                 self.go_widget.write_to_file([self.go_widget.format_time_string(datetime.now()), pressure])
             except Exception as a:
                 self.error.emit([sample_num, a])
-                print("excetionp detected in recorder.run")
                 return
             # Wait here until the next cycle 
             while time.perf_counter() < next_time:
